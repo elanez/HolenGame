@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     public new Transform camera;
-    public Transform attackPoint;
+    public Transform launchPoint;
     public GameObject interactableHolen;
 
     [Header("Throwing")]
@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
 
     private void Throw()
     {
-        GameObject projectile = Instantiate(interactableHolen, attackPoint.position, camera.rotation);
+        GameObject projectile = Instantiate(interactableHolen, launchPoint.position, camera.rotation);
         Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
 
         Vector3 forceDirection = camera.transform.forward;
@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
         
         if(Physics.Raycast(camera.position, camera.forward, out hit, 500f))
         {
-            forceDirection = (hit.point - attackPoint.position).normalized;
+            forceDirection = (hit.point - launchPoint.position).normalized;
         }
 
         projectileRb.AddForce(forceDirection * throwForce, ForceMode.Impulse);
