@@ -15,29 +15,38 @@ public class GameManager : MonoBehaviour
     // private int _maxRounds = 15;
     // [SerializeField]
     // private float _turnDuration = 15f;
-    // [SerializeField]
-    // private float _observeDuration = 15f;
-    public GameState state;
+    [SerializeField]
+    private float _observeDuration = 15f;
+    private GameState _state;
     public List<Player> playerList = new List<Player>();
 
     [Header("Holen")]
     public Transform spawnPoint;
     public GameObject holen;
    
-    void Awake()
+    private void Awake()
     {
         instance = this;
     }
 
-    void Start()
+    private void Start()
     {
        SetupGame();
-       state = GameState.TURN;
+       EventManager.instance.OnPlayerObserve += SwitchToObserveMode;
+       _state = GameState.TURN;
+    }
+
+    private void Update() 
+    {
+        if(_state == GameState.OBSERVE)
+        {
+            StartCoroutine(ObserveRoutine());
+        }
     }
 
     private void SetupGame()
     {
-        state = GameState.START;
+        _state = GameState.START;
         // _currentRound = 0;
 
         for(int i=0; i<playerList.Count; i++)
@@ -51,10 +60,26 @@ public class GameManager : MonoBehaviour
         }
 
         Instantiate(holen, spawnPoint.position, spawnPoint.rotation);
-
-
     }
 
+    public void SwitchToObserveMode()
+    {
+        _state = GameState.OBSERVE;
+    }
 
+    public GameState getState()
+    {
+        return _state;
+    }
+
+    #region Routine
+
+    IEnumerator ObserveRoutine()
+    {
+        yield return new WaitForSeconds(_observeDuration);
+        _state = GameState.TURN;
+    }
+
+    #endregion
     
 }

@@ -30,7 +30,7 @@ public class PlayerCamController : MonoBehaviour
 
     private void Update() 
     {
-        if(GameManager.instance.state != GameState.TURN)
+        if(GameManager.instance.getState() != GameState.TURN)
             return;
         
         float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;

@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if(GameManager.instance.state != GameState.TURN)
+        if(GameManager.instance.getState() != GameState.TURN)
             return;
         
         if(Input.GetMouseButtonDown(0))
@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
         }
 
         projectileRb.AddForce(forceDirection * throwForce, ForceMode.Impulse);
+
+        EventManager.instance.InvokeObserve();
     }
     
 }
