@@ -4,21 +4,11 @@ using UnityEngine;
 
 public class InteractableHolen : MonoBehaviour
 {
-    private Rigidbody _rb;
-    public float power = 100f;
-    void Start()
-    {
-        _rb = GetComponent<Rigidbody>();
-    }
+    [SerializeField]
+    private float _lifetime = 2f;
 
-    public void FixedUpdate() 
+    void Awake() 
     {
-        if(Input.GetMouseButtonDown(0))
-            MoveHolen(power);
-    }
-
-    public void MoveHolen(float power)
-    {
-        _rb.AddForce(transform.forward * power, ForceMode.Impulse);
+        Destroy(this, _lifetime);
     }
 }
