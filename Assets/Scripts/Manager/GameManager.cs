@@ -18,11 +18,12 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private float _observeDuration = 15f;
     private GameState _state;
-    public List<Player> playerList = new List<Player>();
 
     [Header("Holen")]
     public Transform spawnPoint;
     public GameObject holen;
+    [Header("Players")]
+    public List<Player> playerList = new List<Player>();
    
     private void Awake()
     {
@@ -73,13 +74,11 @@ public class GameManager : MonoBehaviour
     }
 
     #region Routine
-
     IEnumerator ObserveRoutine()
     {
         yield return new WaitForSeconds(_observeDuration);
         _state = GameState.TURN;
     }
-
     #endregion
     
 }

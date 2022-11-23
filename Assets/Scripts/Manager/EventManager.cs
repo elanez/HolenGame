@@ -6,9 +6,12 @@ public class EventManager : MonoBehaviour
 {
     public static EventManager instance;
     public delegate void ScoreAction();
-    public delegate void ObserveAction();
     public event ScoreAction OnPlayerScored;
+
+    public delegate void ObserveAction();
+    
     public event ObserveAction OnPlayerObserve;
+
 
     private void Awake() 
     {
@@ -17,13 +20,11 @@ public class EventManager : MonoBehaviour
 
     public void InvokeScore()
     {
-        if(OnPlayerScored != null)
-            OnPlayerScored();
+        OnPlayerScored?.Invoke();
     }
 
     public void InvokeObserve()
     {
-        if(OnPlayerObserve != null)
-            OnPlayerObserve();
+        OnPlayerObserve?.Invoke();
     }
 }
