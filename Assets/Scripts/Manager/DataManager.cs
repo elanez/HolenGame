@@ -6,8 +6,6 @@ using UnityEngine;
 public class DataManager : MonoBehaviour
 {
     public static DataManager instance;
-
-    [Header("Players")]
     public List<Player> playerList = new List<Player>();
 
     private int _activePlayerIndex;
@@ -19,40 +17,43 @@ public class DataManager : MonoBehaviour
 
     private void Start() 
     {
-        EventManager.instance.OnPlayerScored += AddScore;
+        SetupEvent();
     }
 
-    public void SetupPlayers()
+    private void SetupPlayers()
     {
-        foreach (Player player in playerList)
-            player.Score = 0;
         _activePlayerIndex = 0;
     }
 
-    public void AddScore()
+    private void AddScore()
     {
-        Debug.Log(playerList[_activePlayerIndex].name + " has scored!");
+        Debug.Log("DATA: " + playerList[_activePlayerIndex].name + " has scored!");
         playerList[_activePlayerIndex].Score++;
-        Debug.Log(playerList[_activePlayerIndex].name + " score: " + playerList[_activePlayerIndex].Score);
+        Debug.Log("DATA: " + playerList[_activePlayerIndex].name + " score: " 
+            + playerList[_activePlayerIndex].Score);
+        UIManager.instance.UpdateScore();
     }
 
     public Player GetActivePlayer()
     {
-        Debug.Log("Player " + playerList[_activePlayerIndex].name + " is active");
         return playerList[_activePlayerIndex];
     }
 
     public bool NextTurn()
     {
-        Debug.Log("Next Turn");
-        _activePlayerIndex++;
-        if(_activePlayerIndex >= playerList.Count)
+        if(_activePlayerIndex+1 < playerList.Count)
         {
+            Debug.Log("DATA: Update to next player");
+            _activePlayerIndex++;
+            return true;
+        }
+        else
+        {
+            Debug.Log("DATA: Restart player");
             _activePlayerIndex = 0;
             return false;
         }
-        else
-            return true;
+            
     }
 
     public Player GetWinner()
@@ -74,13 +75,21 @@ public class DataManager : MonoBehaviour
         }
 
         if(isTie)
+        {
+            Debug.Log("DATA: Tie Game");
             return null;
+        }
+            
         else
+        {
+            Debug.Log("DATA: WINNER: " + playerList[highScoreIndex].name);
             return playerList[highScoreIndex];
+        }
     }
 
-    private void OnDestroy() 
+    private void SetupEvent()
     {
-        EventManager.instance.OnPlayerScored -= AddScore;
+        EventManager.instance.OnStartMatch += SetupPlayers;
+        EventManager.instance.OnPlayerScored += AddScore;
     }
 }

@@ -13,16 +13,13 @@ public class GameManager : MonoBehaviour
     private int _currentRound;
     [SerializeField]
     private int _maxRounds = 15;
-    [SerializeField]
-    private float _turnDuration = 15f;
-    [SerializeField]
-    private float _observeDuration = 15f;
     private GameState _state;
 
     [Header("Holen")]
     public GameObject holen;
-    public float totalHolens;
+    public int totalHolens;
     public Transform spawnPoint;
+
     
     private void Awake()
     {
@@ -31,41 +28,51 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartGame();
-        SetupEvents();
-        _state = GameState.TURN;
+        SetupEvent();
+        _state = GameState.START;
+        StartMatch();
     }
 
     #region game states
-    private void StartGame()
+    public void StartMatch()
     {
-        Debug.Log("Start Game");
-        _currentRound = 1;
-        _state = GameState.START;
-        DataManager.instance.SetupPlayers();
-        Instantiate(holen, spawnPoint.position, spawnPoint.rotation);
+        EventManager.instance.InvokeMatch();
+        InstantiateHolens();
+        Turn();
     }
 
-    private void Turn()
+    public void Turn()
     {
+        if(_state == GameState.START) //first round of the game
+        {
+            Debug.Log("First Turn");
+            _state = GameState.TURN;
+            _currentRound = 1;
+            UIManager.instance.UpdateRound(_currentRound);
+            return;
+        }
+        _state = GameState.TURN;
+        CheckHolenCount();
+        if(_state == GameState.END)
+            return;
+            
         if(!DataManager.instance.NextTurn())
         {
             _currentRound++;
-            Debug.Log("Round: " + _currentRound);
+            Debug.Log("GAME: Round: " + _currentRound);
             if(_currentRound > _maxRounds)
             {
                 GameEnd();
                 return;
             }
         }
-        _state = GameState.TURN;
-        Debug.Log("GameState: Turn");
+        UIManager.instance.UpdateRound(_currentRound);
+        EventManager.instance.InvokeTurn();
     }
 
     private void Observe()
     {
         _state = GameState.OBSERVE;
-        StartCoroutine(ObserveRoutine());
     }
 
     private void GameEnd()
@@ -82,33 +89,34 @@ public class GameManager : MonoBehaviour
         return _state;
     }
 
-    public void ReduceHolen()
+    private void InstantiateHolens()
+    {
+        for(int i = 0; i < totalHolens; i++)
+        {
+            Vector3 randomPosition = new Vector3(spawnPoint.position.x + Random.Range(-10,10),
+                spawnPoint.position.y + 1, spawnPoint.position.z + Random.Range(-10,10));
+            Instantiate(holen, randomPosition, Quaternion.identity);
+        }
+        
+    }
+
+    private void ReduceHolen()
     {
         totalHolens--;
-        Debug.Log("Holens left: " + totalHolens);
-        if(totalHolens >= 0)
+        Debug.Log("GAME: Holens left: " + totalHolens);
+    }
+
+    private void CheckHolenCount()
+    {
+        if (totalHolens <= 0)
             GameEnd();
     }
 
-    private void SetupEvents() 
+    private void SetupEvent() 
     {
-        EventManager.instance.OnPlayerScored += ReduceHolen;
+        // EventManager.instance.OnStartTurn += Turn;
         EventManager.instance.OnGameObserve += Observe;
-    }
-
-    private void OnDestroy()
-    {
-        EventManager.instance.OnPlayerScored -= ReduceHolen;
-        EventManager.instance.OnGameObserve -= Observe;
-    }
-    #endregion
-
-    #region Routine
-    IEnumerator ObserveRoutine()
-    {
-        yield return new WaitForSeconds(_observeDuration);
-        if(_state == GameState.OBSERVE)
-            Turn();
+        EventManager.instance.OnPlayerScored += ReduceHolen;
     }
     #endregion
 

@@ -13,6 +13,7 @@ public class PlayerCamController : MonoBehaviour
     
     private void Start() 
     {
+        SetupEvent();
         ActivateController();
     }
 
@@ -24,13 +25,13 @@ public class PlayerCamController : MonoBehaviour
 
     private void DeactivateController()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private void Update() 
     {
-        if(GameManager.instance.GetState() != GameState.TURN)
+        if(GameManager.instance.GetState() == GameState.END)
             return;
         
         float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
@@ -42,5 +43,12 @@ public class PlayerCamController : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
+    private void SetupEvent()
+    {
+        // EventManager.instance.OnStartTurn += ActivateController;
+        // EventManager.instance.OnGameObserve += DeactivateController;
+        EventManager.instance.OnGameEnd += DeactivateController;
     }
 }

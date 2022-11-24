@@ -12,8 +12,12 @@ public class PlayerController : MonoBehaviour
     [Header("Throwing")]
     // public KeyCode throwKey;
     public float throwForce;
-
-
+    public Renderer holenHold;
+    
+    private void Start()
+    {
+        EventManager.instance.OnStartTurn += ShowHolenHold;
+    }
     private void Update()
     {
         if(GameManager.instance.GetState() != GameState.TURN)
@@ -25,6 +29,7 @@ public class PlayerController : MonoBehaviour
 
     private void Throw()
     {
+        holenHold.enabled = false;
         GameObject projectile = Instantiate(interactableHolen, launchPoint.position, camera.rotation);
         Rigidbody projectileRb = projectile.GetComponent<Rigidbody>();
 
@@ -39,6 +44,11 @@ public class PlayerController : MonoBehaviour
         projectileRb.AddForce(forceDirection * throwForce, ForceMode.Impulse);
 
         EventManager.instance.InvokeObserve();
+    }
+
+    private void ShowHolenHold()
+    {
+        holenHold.enabled = true;
     }
     
 }
