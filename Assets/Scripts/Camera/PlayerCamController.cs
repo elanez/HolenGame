@@ -38,7 +38,7 @@ public class PlayerCamController : MonoBehaviour
         float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
         yRotation += mouseX;
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -45f, 45f);
+        xRotation = Mathf.Clamp(xRotation, -10f, 45f);
         yRotation = Mathf.Clamp(yRotation, -45f, 45f);
 
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
