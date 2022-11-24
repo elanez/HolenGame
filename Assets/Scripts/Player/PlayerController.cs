@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if(GameManager.instance.getState() != GameState.TURN)
+        if(GameManager.instance.GetState() != GameState.TURN)
             return;
         
         if(Input.GetMouseButtonDown(0))
