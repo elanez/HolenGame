@@ -9,22 +9,21 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    [Header("Reference")]
-    // private int _currentRound;
-    // [SerializeField]
-    // private int _maxRounds = 15;
-    // [SerializeField]
-    // private float _turnDuration = 15f;
+    [Header("Game Reference")]
+    private int _currentRound;
+    [SerializeField]
+    private int _maxRounds = 15;
+    [SerializeField]
+    private float _turnDuration = 15f;
     [SerializeField]
     private float _observeDuration = 15f;
     private GameState _state;
 
     [Header("Holen")]
-    public Transform spawnPoint;
     public GameObject holen;
-    [Header("Players")]
-    public List<Player> playerList = new List<Player>();
-   
+    public float totalHolens;
+    public Transform spawnPoint;
+    
     private void Awake()
     {
         instance = this;
@@ -32,53 +31,85 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-       SetupGame();
-       EventManager.instance.OnPlayerObserve += SwitchToObserveMode;
-       _state = GameState.TURN;
+        StartGame();
+        SetupEvents();
+        _state = GameState.TURN;
     }
 
-    private void Update() 
+    #region game states
+    private void StartGame()
     {
-        if(_state == GameState.OBSERVE)
-        {
-            StartCoroutine(ObserveRoutine());
-        }
-    }
-
-    private void SetupGame()
-    {
+        Debug.Log("Start Game");
+        _currentRound = 1;
         _state = GameState.START;
-        // _currentRound = 0;
-
-        for(int i=0; i<playerList.Count; i++)
-        {
-            if(i == 0)
-                playerList[i].IsTurn = true;
-            else
-                playerList[i].IsTurn = false;
-
-            playerList[i].Score = 0;
-        }
-
+        DataManager.instance.SetupPlayers();
         Instantiate(holen, spawnPoint.position, spawnPoint.rotation);
     }
 
-    public void SwitchToObserveMode()
+    private void Turn()
     {
-        _state = GameState.OBSERVE;
+        if(!DataManager.instance.NextTurn())
+        {
+            _currentRound++;
+            Debug.Log("Round: " + _currentRound);
+            if(_currentRound > _maxRounds)
+            {
+                GameEnd();
+                return;
+            }
+        }
+        _state = GameState.TURN;
+        Debug.Log("GameState: Turn");
     }
 
-    public GameState getState()
+    private void Observe()
+    {
+        _state = GameState.OBSERVE;
+        StartCoroutine(ObserveRoutine());
+    }
+
+    private void GameEnd()
+    {
+        _state = GameState.END;
+        EventManager.instance.InvokeGameEnd();
+    }
+
+    #endregion
+
+    #region utilities
+    public GameState GetState()
     {
         return _state;
     }
+
+    public void ReduceHolen()
+    {
+        totalHolens--;
+        Debug.Log("Holens left: " + totalHolens);
+        if(totalHolens >= 0)
+            GameEnd();
+    }
+
+    private void SetupEvents() 
+    {
+        EventManager.instance.OnPlayerScored += ReduceHolen;
+        EventManager.instance.OnGameObserve += Observe;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.instance.OnPlayerScored -= ReduceHolen;
+        EventManager.instance.OnGameObserve -= Observe;
+    }
+    #endregion
 
     #region Routine
     IEnumerator ObserveRoutine()
     {
         yield return new WaitForSeconds(_observeDuration);
-        _state = GameState.TURN;
+        if(_state == GameState.OBSERVE)
+            Turn();
     }
     #endregion
-    
+
 }
