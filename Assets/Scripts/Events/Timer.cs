@@ -13,6 +13,7 @@ public class Timer : MonoBehaviour
     [SerializeField]
     private float _observeDuration;
     private float _elapsedTime;
+    private bool _isRunning;
 
 
     private void Start()
@@ -24,25 +25,28 @@ public class Timer : MonoBehaviour
 
     private void Update()
     {
-        if(GameManager.instance.GetState() != GameState.TURN 
-            && GameManager.instance.GetState() != GameState.OBSERVE)
+        if(!_isRunning)
             return;
 
         _elapsedTime -= Time.deltaTime;
         _timer.SetText(_elapsedTime.ToString("0"));
         if(_elapsedTime <= 0)
         {
-            EventManager.instance.InvokeTurn();
+            Debug.Log("TIMER: INVOKE TURN");
+            _isRunning = false;
+            GameManager.instance.Turn();
         }
     }
 
     private void RestartTurnTimer()
     {
         _elapsedTime = _turnDuration;
+        _isRunning = true;
     }
 
     private void RestartObserveTimer()
     {
+        _isRunning = true;
         _elapsedTime = _observeDuration;
     }
 

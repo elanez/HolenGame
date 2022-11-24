@@ -45,10 +45,11 @@ public class GameManager : MonoBehaviour
     {
         if(_state == GameState.START) //first round of the game
         {
-            Debug.Log("First Turn");
+            Debug.Log("Game: First Turn");
             _state = GameState.TURN;
             _currentRound = 1;
             UIManager.instance.UpdateRound(_currentRound);
+            EventManager.instance.InvokeTurn();
             return;
         }
         _state = GameState.TURN;

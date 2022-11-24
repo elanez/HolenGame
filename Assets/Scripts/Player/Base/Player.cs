@@ -13,4 +13,9 @@ public class Player : ScriptableObject
         get => _score;
         set => _score = value;
     }
+
+    private void OnEnable()
+    {
+        _score = 0;
+    }
 }

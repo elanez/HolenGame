@@ -5,10 +5,10 @@ using UnityEngine;
 public class InteractableHolen : MonoBehaviour
 {
     [SerializeField]
-    private float _lifetime = 2f;
+    private float _lifetime = 15f;
 
     void Awake() 
     {
-        Destroy(this, _lifetime);
+        Destroy(this.gameObject, _lifetime);
     }
 }
