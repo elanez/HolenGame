@@ -9,7 +9,8 @@ public class ArenaEventHandler : MonoBehaviour
     {
         if(!col.CompareTag("Holen"))
             return;
+        
+        Destroy(col.gameObject);
         EventManager.instance.InvokeScore();
-        // Debug.Log("Out");
     }
 }
