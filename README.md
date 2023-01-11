@@ -1,6 +1,6 @@
 # HolenGame
 
-A 3d first person perspective game created using Unity.
+A 3d first person perspective holen shooting game created using Unity.
 
 Game Mechanics
 - The player throw/flicks/tap his holen to hit other holen inside the circle.
